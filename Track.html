@@ -1,0 +1,226 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyURL</title>
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+    <script src="node_modules/chart.js/dist/Chart.min.js"></script>
+    <script src="js/jquery-3.4.1.js"></script>
+    <script src="js/js.cookie.min.js"></script>
+</head>
+<body>
+    <header>
+    <nav class="flex items-center justify-between flex-wrap bg-teal-500 p-6">
+        <div class="flex items-center flex-shrink-0 text-white mr-6">
+          <svg class="fill-current h-8 w-8 mr-2" width="54" height="54" viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 22.1c1.8-7.2 6.3-10.8 13.5-10.8 10.8 0 12.15 8.1 17.55 9.45 3.6.9 6.75-.45 9.45-4.05-1.8 7.2-6.3 10.8-13.5 10.8-10.8 0-12.15-8.1-17.55-9.45-3.6-.9-6.75.45-9.45 4.05zM0 38.3c1.8-7.2 6.3-10.8 13.5-10.8 10.8 0 12.15 8.1 17.55 9.45 3.6.9 6.75-.45 9.45-4.05-1.8 7.2-6.3 10.8-13.5 10.8-10.8 0-12.15-8.1-17.55-9.45-3.6-.9-6.75.45-9.45 4.05z"/></svg>
+          <span class="font-semibold text-xl tracking-tight">Tiny URL</span>
+        </div>
+        <div class="block lg:hidden">
+          <button class="flex items-center px-3 py-2 border rounded text-teal-200 border-teal-400 hover:text-white hover:border-white">
+            <svg class="fill-current h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Menu</title><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"/></svg>
+          </button>
+        </div>
+        <div class="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
+          <div class="text-sm lg:flex-grow">
+            <a href="IndexLogin.html" class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
+              Home
+            </a>
+            <a href="Track.html" class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
+              Track
+            </a>
+          </div>
+          <div>
+            <a id="logout" onclick="Logout()" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-teal-500 hover:bg-white mt-4 lg:mt-0">Logout</a>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <body>
+      <div id="url-list">
+        <table class="table-fixed">
+            <thead>
+              <tr>
+                <th class="w-1/5 px-4 py-2">No</th>
+                <th class="w-1/2 px-4 py-2">Short Url</th>
+                <th class="w-1/2 px-4 py-2">Original Url</th>
+              </tr>
+            </thead>
+            <tbody id="t-ip-body">
+              
+            </tbody>
+          </table>
+      </div>
+      <div id="statistics-detail">
+        <div id="statistic-info">
+
+        </div>
+        <div id="statistic-graph" class="w-1/2">
+            <canvas id="myChart" width="400" height="100"></canvas>
+        </div>
+      </div>
+    </body>
+</body>
+</html>
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+  var DetailData;
+  $(document).ready(function(){
+    var jwt ='Bearer '+Cookies.get('token');
+      $.ajax({
+              url: 'http://192.168.17.109:5000/api/Track',
+              type: "GET",
+              dataType: 'json',
+              beforeSend: function (xhr) 
+              {
+                xhr.setRequestHeader("Authorization",jwt);
+              }
+          }).done(function(data){
+              console.log(data);
+              console.log("DATA");
+              for(i=0; i<data.length; i++){
+                  var shortUrl = '<a href="javascript: generateDetail(\''+data[i].shortUrl+'\')">'+ data[i].shortUrl +'</a>';
+                  var counter = i+1;
+                  var tableContent = '<tr>'+
+                      '<td class="border px-4 py-2">'+counter+'</td>'+
+                      '<td class="border px-4 py-2">'+ shortUrl +'</td>'+
+                      '<td class="border px-4 py-2">'+ data[i].url +'</td>'+
+                    '</tr>';
+                  console.log(data[i].Url);
+                  console.log("OKE");
+                  console.log(data[i].url);
+                  
+                    $('#t-ip-body').append(tableContent);
+              }
+                
+          }).catch(function(err){
+              console.log(err);
+      });
+  })
+
+  function generateDetail(ID){
+    console.log("IDKU");
+    console.log(ID);
+    $.ajax({
+        url: 'http://192.168.17.109:5000/api/Track/'+ID,
+            type: 'get',
+            dataType: 'json',
+        }).done(function(data){
+            console.log(data);
+            DetailData = data;
+            $('#statistic-info').empty();
+            $('#statistic-graph').empty();
+
+            generateInfo(data.click);
+            generateGraph(data.byDate.label, data.byDate.value);
+
+        }).catch(function(err){
+            console.log(err);
+        });
+  }
+  function generateInfo(data){
+    var infos = `<table class="table-fixed">
+            <thead>
+              <tr>
+                <th class="w-1/5 px-4 py-2">No</th>
+                <th class="w-1/2 px-4 py-2">Origin</th>
+                <th class="w-1/2 px-4 py-2">Access</th>
+              </tr>
+            </thead>
+            <tbody id="t-stat-detail-body">
+              
+            </tbody>
+          </table>`;
+
+    $('#statistic-info').append(infos);
+    for(i=0; i<data.length; i++){
+        var content = '<tr>'+
+                            '<td class="border px-4 py-2">'+ i +'</td>'+
+                            '<td class="border px-4 py-2">'+ data[i].ip +'</td>'+
+                            '<td class="border px-4 py-2">'+ data[i].count +'</td>'+
+                            '</tr>';
+        $('#t-stat-detail-body').append(content);                 
+    }
+
+    var dropdownSelect = `<select id="graph-select">
+                            <option value="day">By Day</option>
+                            <option value="month">By Month</option>
+                            <option value="year">By Year</option>
+                        </select>
+                        <button onclick="setGraph()" type="button" class="modal-open shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded">Set</button>`;
+
+    $('#statistic-info').append(dropdownSelect);
+  }
+
+  function setGraph(){
+    var graphSel = $('#graph-select').val();
+    $('#statistic-graph').empty();
+    switch (graphSel) {
+        case "day":
+            generateGraph(DetailData.byDate.label, DetailData.byDate.value);
+            break;
+
+        case "month":
+            generateGraph(DetailData.byMonth.label, DetailData.byMonth.value);
+            break;
+
+        case "year":
+            generateGraph(DetailData.byYear.label, DetailData.byYear.value);
+            break;
+    }
+}
+function generateGraph(label, value){
+    $('#statistic-graph').append('<canvas id="myChart" width="400" height="200"></canvas>');
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: label,
+            datasets: [{
+                label: '# Accessed',
+                data: value,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+            tooltips: {
+                mode: 'index'
+            }
+        }
+    });
+}
+function Logout(){
+  Cookies.remove('token');
+  window.location.href = 'http://192.168.17.109:8080/Login.html';
+}
+</script>
